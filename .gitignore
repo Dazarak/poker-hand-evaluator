@@ -1,2 +1,12 @@
-poker_engine
+# Dossier de build CMake
+build/
+
+# Fichiers d'objets et binaires
 *.o
+*.out
+poker_engine
+
+# Fichiers d'éditeurs et système (optionnel mais propre)
+.vscode/
+.idea/
+.DS_Store

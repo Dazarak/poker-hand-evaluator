@@ -21,7 +21,10 @@ Le projet fournit une infrastructure rapide, native et agnostique des règles de
 ### Prérequis
 - Un compilateur C++ compatible C++20 (`g++`, `clang++` ou MSVC)
 
-### Compilation directe (GCC)
+### Compilation avec CMake
 ```bash
-g++ -std=c++20 -Wall -Wextra *.cpp -o poker_engine
+mkdir build && cd build
+cmake ..
+make
 ./poker_engine
+```
