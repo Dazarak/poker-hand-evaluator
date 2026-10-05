@@ -7,19 +7,10 @@ using namespace std;
 int main( ) {
     Engine pokEn;
     
-    pokEn.StartGame(5, 5, 1000);
+    std::array<Card, Config::MAX_CARDS> PlayerCard = { Card(0,1,true), Card(1,1,true),Card(2,1,true),Card(3,1,true),Card(4,1,true),Card(5,1,true),Card(6,1,true),Card(),Card(),Card() };
 
-    pokEn.EvaluatePlayersHands();
-
-    int i = 0;
-    for (auto& plr : pokEn.Players)
-    {
-        if (plr.isPlayer)
-        {
-            std::cout << "joueur " << i << " gagne ? : " << plr.iswinner << " main : " << plr.cards << " carte commune : " << pokEn.CommunCards << " carte active : " << plr.activecards << " hauteur de main : " << plr.GetHandRank() << std::endl;
-            i++;
-        }
-    }
+    std::cout << pokEn.EvaluatePlayersHands(PlayerCard) << std::endl;
+    
 
     return 0;
 }

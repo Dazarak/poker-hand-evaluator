@@ -1,157 +1,93 @@
 #include "Engine.h"
-#include "Config.h"
-#include "HandRank.h"
-#include "Player.h"
-#include <iostream>
-#include <algorithm> 
-#include <random>
-
-// ######################### GAME FUNCTION ##########################
-
-Card Engine::DrawCard(std::array<Card, 52>& deck, size_t& deckIndex) {
-    if (deckIndex >= 52) return Card(); // Sécurité
-    
-    Card drawn = deck[deckIndex];
-    deck[deckIndex].isCard = false;
-    deckIndex++;
-    
-    return drawn;
-}
-
-void Engine::StartGame(int nbPlayer, int nbCardsPerPlayers, int startMoney)
-{
-    // Crée le jeu de cartes
-    std::array<Card, 52> allCards{};
-    int k = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 13; j++)
-        {
-            allCards[k] = Card(j, i, true);
-            k++;
-        }
-    }
-
-    // Mélange le paquet
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(allCards.begin(), allCards.end(), g);
-    
-    size_t deckIndex = 0;
-    for (uint8_t i = 0; i < nbPlayer; i++)
-    {
-        std::array<Card, 5> plrCards{}; // Tableau initialisé par défaut (isCard = false)
-        
-        for (int c = 0; c < nbCardsPerPlayers; c++)
-        {
-            plrCards[c] = allCards[deckIndex++];
-        }
-
-        Engine::Players[i] = Player(i, startMoney, plrCards);
-    }
-
-    for (int i = 0; i < Config::COMMUNITY_CARDS - 1; i++)
-    {
-        CommunCards[i] = allCards[deckIndex++];
-    }
-}
 
 // ######################### EVALUATE HANDS #########################
 
-void Engine::EvaluatePlayersHands()
+HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allCards)
 {
     std::array<Card, Config::CARDS_PER_PLAYER> dft{};
-    std::array<Card, Config::MAX_CARDS> allCards{};
+    HandResult result;
 
-    for (uint8_t i = 0; i < Config::MAX_PLAYERS; i++)
+    auto activeCards = isRoyalFlush(allCards);
+    if (dft != activeCards)
     {
-        allCards = { 
-            Engine::Players[i].cards[0], Engine::Players[i].cards[1], Engine::Players[i].cards[2], Engine::Players[i].cards[3], Engine::Players[i].cards[4],
-            Engine::CommunCards[0], Engine::CommunCards[1], Engine::CommunCards[2], Engine::CommunCards[3], Engine::CommunCards[4]
-        };
-
-        auto result = isRoyalFlush(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = ROYAL_FLUSH;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isStraightFlush(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = STRAIGHT_FLUSH;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isFourOfKind(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = FOUR_OF_A_KIND;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isFullHouse(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = FULL_HOUSE;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isFlush(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = FLUSH;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isStraight(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = STRAIGHT;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isThreeOfKind(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = THREE_OF_A_KIND;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isTwoPair(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = TWO_PAIR;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        result = isPair(allCards);
-        if (dft != result)
-        {
-            Engine::Players[i].handrank = PAIR;
-            Engine::Players[i].activecards = result;
-            continue;
-        }
-
-        SortCards(allCards);
-        for (int j = Config::MAX_CARDS - 1, idx = 0; j >= 0 && idx < 5; j--) {
-            if (allCards[j].isCard) {
-                Engine::Players[i].activecards[idx++] = allCards[j];
-            }
-        }
-        Engine::Players[i].handrank = HIGH_CARD;
+        result.rank = ROYAL_FLUSH;
+        result.activeCards = activeCards;
+        return result;
     }
 
-    givePlayersScore();
+    activeCards = isStraightFlush(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = STRAIGHT_FLUSH;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isFourOfKind(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = FOUR_OF_A_KIND;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isFullHouse(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = FULL_HOUSE;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isFlush(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = FLUSH;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isStraight(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = STRAIGHT;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isThreeOfKind(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = THREE_OF_A_KIND;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isTwoPair(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = TWO_PAIR;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    activeCards = isPair(allCards);
+    if (dft != activeCards)
+    {
+        result.rank = PAIR;
+        result.activeCards = activeCards;
+        return result;
+    }
+
+    SortCards(allCards);
+    for (int j = Config::MAX_CARDS - 1, idx = 0; j >= 0 && idx < 5; j--) {
+        if (allCards[j].isCard) {
+            result.activeCards[idx++] = allCards[j];
+        }
+    }
+    result.rank = HIGH_CARD;
+
+    return result;
 }
 
 std::array<Card, Config::CARDS_PER_PLAYER> Engine::isRoyalFlush(array<Card, Config::MAX_CARDS>& Cards) {
@@ -472,67 +408,6 @@ std::array<Card, Config::CARDS_PER_PLAYER> Engine::isPair(array<Card, Config::MA
     return result;
 }
 
-void Engine::givePlayersScore()
-{
-    for (Player& plr : Engine::Players) {
-        plr.iswinner = false;
-    }
-
-    HandRank maxRank = EMPTY;
-    for (const auto& p : Engine::Players) {
-        if (p.handrank > maxRank) {
-            maxRank = p.handrank;
-        }
-    }
-    if (maxRank == EMPTY) return; // Aucun joueur actif
-
-    std::vector<uint8_t> candidates;
-
-    // Récupérer les joueur avec les meilleurs mains
-    for (uint8_t i = 0; i < Config::MAX_PLAYERS; ++i) {
-        if (Engine::Players[i].handrank == maxRank) {
-            candidates.push_back(i);
-        }
-    }
-
-    if (candidates.size() == 1) { // Si qu'une seul personne
-        Engine::Players[candidates[0]].iswinner = true;
-        return;
-    }
-
-    // On compare les cartes une par une, de la plus prioritaire à la moins prioritaire (ex: kickers)
-    for (uint8_t cardIndex = 0; cardIndex < Config::CARDS_PER_PLAYER; ++cardIndex) {
-        uint8_t maxValue = 0;
-
-        // Trouver la valeur de carte la plus forte à la position actuelle parmi les candidats
-        for (uint8_t PlayerIdx : candidates) {
-            if (Engine::Players[PlayerIdx].activecards[cardIndex].value > maxValue) {
-                maxValue = Players[PlayerIdx].activecards[cardIndex].value;
-            }
-        }
-
-        // Ne conserver que les joueurs qui possèdent cette valeur maximale
-        std::vector<uint8_t> Winners;
-        for (uint8_t PlayerIdx : candidates) {
-            if (Engine::Players[PlayerIdx].activecards[cardIndex].value == maxValue) {
-                Winners.push_back(PlayerIdx);
-            }
-        }
-
-        // Mettre à jour la liste des candidats restant pour la prochaine carte
-        candidates = Winners;
-
-        // Si un seul joueur reste en lice, il a le meilleur kicker
-        if (candidates.size() == 1) {
-            break;
-        }
-    }
-
-    for (uint8_t idx : candidates) {
-        Engine::Players[idx].iswinner = true;
-    }
-}
-
 // ######################### SORT FUNCTION #########################
 
 void Engine::SortCards(std::array<Card, Config::MAX_CARDS>& Cards) {
@@ -547,12 +422,5 @@ void Engine::SortCardsBySymbole(std::array<Card, Config::MAX_CARDS>& Cards) {
             return a.symbole < b.symbole;
         }
         return a.value < b.value; // Tri secondaire par valeur
-    });
-}
-
-void Engine::SortPlayersRank(std::array<Player,Config::MAX_PLAYERS>& players)
-{
-    std::sort(players.begin(), players.end(), [](const Player& a, const Player& b)-> bool {
-        return a.handrank > b.handrank; // Tri par valeur decroissante
     });
 }
