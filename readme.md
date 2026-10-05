@@ -1,29 +1,27 @@
-# Poker Engine & Solver (C++)
+# Poker Hand Evaluator (C++)
 
-Moteur d'évaluation de mains de Poker (Texas Hold'em) et base de calcul d'équité / solver développé en **C++20**.
+Bibliothèque d'évaluation pure de mains de poker développée en **C++20**.
 
-Le projet vise à fournir une infrastructure rapide et native pour l'évaluation de combinaisons et la résolution d'arbres de décision (GTO / CFR) sans surcoût d'un garbage collector.
+Le projet fournit une infrastructure rapide, native et agnostique des règles de jeu pour l'évaluation de combinaisons de cartes, utilisable comme brique de base pour un moteur de jeu ou un solveur RL.
 
-## 💡 Fonctionnalités actuelles & Roadmap
+## 💡 Fonctionnalités
 
-- [x] **Évaluation des combinaisons** : Détection des mains (Royal Flush, Straight, Pair, etc.) via `EvaluateHand`.
-- [x] **Comparaison de cartes hautes / kickers** : Algorithmes de tri et de départage entre joueurs.
-- [x] **Moteur de comparaison complet** : Finalisation de la résolution des ex-æquo sur toutes les combinaisons.
-- [ ] **Solver CFR (Counterfactual Regret Minimization)** : Implémentation de la logique de calcul d'équilibre de Nash.
+- [x] **Évaluation pure des combinaisons** : Détection des mains (Royal Flush, Straight Flush, Four of a Kind, etc.) via `EvaluatePlayersHands`.
+- [x] **Gestion des kickers** : Extraction et tri automatique des 5 meilleures cartes actives (`HandResult`).
+- [x] **Structure agnostique** : Indépendante de la logique de partie (aucune dépendance aux joueurs, jetons ou pots).
 
 ## 🛠️ Stack Technique
 
 - **Langage** : C++20
-- **Structure** : Orientée performances (structures légères, allocation statique via `std::array`).
+- **Structure** : Orientée performances (`std::array`, passage par valeur/référence léger).
 - **Gestion mémoire** : Zéro allocation dynamique sur le chemin critique d'évaluation.
 
 ## 🚀 Compilation & Exécution
 
 ### Prérequis
 - Un compilateur C++ compatible C++20 (`g++`, `clang++` ou MSVC)
-- CMake ou `g++` en ligne de commande
 
 ### Compilation directe (GCC)
 ```bash
-g++ -std=c++20 -fsanitize=address -g main.cpp Engine.cpp Card.cpp Player.cpp -o poker_engine
+g++ -std=c++20 -Wall -Wextra *.cpp -o poker_engine
 ./poker_engine
