@@ -10,7 +10,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     auto activeCards = isRoyalFlush(allCards);
     if (dft != activeCards)
     {
-        result.rank = ROYAL_FLUSH;
+        result.handRank = ROYAL_FLUSH;
         result.activeCards = activeCards;
         return result;
     }
@@ -18,7 +18,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isStraightFlush(allCards);
     if (dft != activeCards)
     {
-        result.rank = STRAIGHT_FLUSH;
+        result.handRank = STRAIGHT_FLUSH;
         result.activeCards = activeCards;
         return result;
     }
@@ -26,7 +26,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isFourOfKind(allCards);
     if (dft != activeCards)
     {
-        result.rank = FOUR_OF_A_KIND;
+        result.handRank = FOUR_OF_A_KIND;
         result.activeCards = activeCards;
         return result;
     }
@@ -34,7 +34,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isFullHouse(allCards);
     if (dft != activeCards)
     {
-        result.rank = FULL_HOUSE;
+        result.handRank = FULL_HOUSE;
         result.activeCards = activeCards;
         return result;
     }
@@ -42,7 +42,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isFlush(allCards);
     if (dft != activeCards)
     {
-        result.rank = FLUSH;
+        result.handRank = FLUSH;
         result.activeCards = activeCards;
         return result;
     }
@@ -50,7 +50,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isStraight(allCards);
     if (dft != activeCards)
     {
-        result.rank = STRAIGHT;
+        result.handRank = STRAIGHT;
         result.activeCards = activeCards;
         return result;
     }
@@ -58,7 +58,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isThreeOfKind(allCards);
     if (dft != activeCards)
     {
-        result.rank = THREE_OF_A_KIND;
+        result.handRank = THREE_OF_A_KIND;
         result.activeCards = activeCards;
         return result;
     }
@@ -66,7 +66,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isTwoPair(allCards);
     if (dft != activeCards)
     {
-        result.rank = TWO_PAIR;
+        result.handRank = TWO_PAIR;
         result.activeCards = activeCards;
         return result;
     }
@@ -74,7 +74,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
     activeCards = isPair(allCards);
     if (dft != activeCards)
     {
-        result.rank = PAIR;
+        result.handRank = PAIR;
         result.activeCards = activeCards;
         return result;
     }
@@ -85,7 +85,7 @@ HandResult Engine::EvaluatePlayersHands(std::array<Card, Config::MAX_CARDS> allC
             result.activeCards[idx++] = allCards[j];
         }
     }
-    result.rank = HIGH_CARD;
+    result.handRank = HIGH_CARD;
 
     return result;
 }
