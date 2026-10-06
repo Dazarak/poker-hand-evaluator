@@ -42,9 +42,13 @@ constexpr std::string_view HandRankToString(HandRank rank) {
         case FOUR_OF_A_KIND:  return "Four of a Kind";
         case STRAIGHT_FLUSH:  return "Straight Flush";
         case ROYAL_FLUSH:     return "Royal Flush";
-        case EMPTY:
+        case EMPTY:           return "Empty";
         default:              return "Empty";
     }
+}
+
+inline std::ostream& operator<<(std::ostream& os, HandRank rank) {
+    return os << HandRankToString(rank);
 }
 
 #endif

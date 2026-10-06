@@ -7,7 +7,7 @@
 #include <array>
 
 struct HandResult {
-    HandRank rank = HandRank::EMPTY;
+    HandRank handRank = HandRank::EMPTY;
     std::array<Card, Config::CARDS_PER_PLAYER> activeCards{};
 
     friend std::ostream& operator<<(std::ostream& os, const HandResult& hr) {
@@ -15,7 +15,7 @@ struct HandResult {
         for (size_t i = 0; i < hr.activeCards.size(); ++i) {
             os << hr.activeCards[i] << (i + 1 < hr.activeCards.size() ? " " : "");
         }
-        os << " ] rank : " << HandRankToString(hr.rank);
+        os << " ] rank : " << HandRankToString(hr.handRank);
         return os;
     }
 };
